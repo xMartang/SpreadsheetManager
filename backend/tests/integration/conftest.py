@@ -28,10 +28,14 @@ def db_session() -> Session:
     try:
         yield db
     finally:
-        pass
         _clean_test_database()
 
 
 def _clean_test_database():
-    for tbl in reversed(Base.metadata.sorted_tables):
-        Database().engine.execute(tbl.delete())
+    with Database().engine.connect() as connection:
+        transaction = connection.begin()
+
+        for tbl in reversed(Base.metadata.sorted_tables):
+            connection.execute(tbl.delete())
+
+        transaction.commit()
