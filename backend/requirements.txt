@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+starlette
+sqlalchemy
+sqlalchemy-utils
+psycopg2-binary
+alembic
