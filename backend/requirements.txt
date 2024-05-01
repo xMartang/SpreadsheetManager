@@ -1,7 +1,15 @@
+# Backend frameworks/tools
 fastapi
 uvicorn
 starlette
+httpx
+
+# Database tools
 sqlalchemy
 sqlalchemy-utils
 psycopg2-binary
 alembic
+
+# Testing
+pytest
+alchemy-mock

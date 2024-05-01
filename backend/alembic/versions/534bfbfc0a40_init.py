@@ -26,7 +26,7 @@ def upgrade() -> None:
     op.create_table(
         'cells',
         sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('name', sa.String, unique=True, nullable=False),
+        sa.Column('name', sa.String, nullable=False),
         sa.Column('type', sa.String, nullable=False),
         sa.Column('value', sa.String, nullable=True),
         sa.Column('sheet_id', sa.Integer, sa.ForeignKey("sheets.id"), nullable=False),

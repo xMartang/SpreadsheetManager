@@ -8,9 +8,11 @@ from database import get_db
 from .exceptions import SheetCreationException
 from .models import Sheet, Cell
 from .schemas import CELL_NAME_KEY, CELL_TYPE_KEY
-from .utils.cell_utils import parse_sheet_cells
+from .utils.sheet_cell_utils import parse_sheet_cells
 
 router = APIRouter()
+
+CREATED_ID_KEY = "created_id"
 
 
 @router.post("/sheets/")
@@ -25,7 +27,7 @@ def create_sheet(sheet_data: Dict, db: Session = Depends(get_db)):
 
         return {
             "success": True,
-            "created_id": created_sheet.id
+            CREATED_ID_KEY: created_sheet.id
         }
     except SheetCreationException as e:
         raise HTTPException(status_code=400, detail=str(e))

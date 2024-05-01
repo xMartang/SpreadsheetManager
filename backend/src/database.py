@@ -2,17 +2,25 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy_utils import database_exists, create_database
 
-SQLALCHEMY_DATABASE_URL = f'postgresql://spreadsheet_manager:123@localhost/spreadsheet'
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from config import DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD
+from design_patterns.singleton import SingletonMeta
 
 
 class Base(DeclarativeBase):
     pass
 
 
+class Database(metaclass=SingletonMeta):
+    SQLALCHEMY_DATABASE_URL = f'postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@localhost/{DATABASE_NAME}'
+
+    def __init__(self):
+        self.engine = create_engine(self.SQLALCHEMY_DATABASE_URL)
+        self.session_local = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+
+
 def ensure_database_exists():
+    engine = Database().engine
+
     if not database_exists(engine.url):
         create_database(engine.url)
 
@@ -21,7 +29,7 @@ def ensure_database_exists():
 
 
 def get_db():
-    db = SessionLocal()
+    db = Database().session_local()
 
     try:
         yield db
