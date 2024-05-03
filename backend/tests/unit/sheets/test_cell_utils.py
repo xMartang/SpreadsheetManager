@@ -6,12 +6,8 @@ from sheets.exceptions import InvalidSheetSchemaException, InvalidCellTypeExcept
 
 
 def test_is_cell_value_valid_method_with_unknown_type():
-    try:
+    with pytest.raises(InvalidCellTypeException):
         is_cell_value_valid("", "unknown_type")
-
-        pytest.fail(f"Exception '{InvalidCellTypeException.__name__}' should've been thrown...")
-    except InvalidCellTypeException:
-        pass
 
 
 @pytest.mark.parametrize(

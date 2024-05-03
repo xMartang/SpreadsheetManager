@@ -1,12 +1,10 @@
-import pdb
-
 import pytest
+from fastapi import status
+from sqlalchemy import select, desc
 
-from sheets.models import Sheet, Cell
+from sheets.models import Sheet
 from sheets.router import CREATED_ID_KEY
-from sheets.utils.cell_utils import CELL_NAME_KEY, CELL_TYPE_KEY, CELL_VALUE_KEY
-
-COLUMNS_KEY = "columns"
+from sheets.utils.cell_utils import CELL_NAME_KEY, CELL_TYPE_KEY, CELL_VALUE_KEY, COLUMNS_KEY
 
 
 @pytest.mark.parametrize(
@@ -19,7 +17,7 @@ COLUMNS_KEY = "columns"
 def test_create_sheet_endpoint_with_valid_sheet_data_schema(http_client, db_session, sheet_data):
     response = http_client.post("/sheets/", json=sheet_data,)
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_201_CREATED
 
     response_data = response.json()
 
@@ -43,7 +41,7 @@ def test_create_sheet_endpoint_with_valid_sheet_data_schema(http_client, db_sess
 def test_create_sheet_endpoint_with_invalid_sheet_data_schema(http_client, sheet_data):
     response = http_client.post("/sheets/", json=sheet_data)
 
-    assert response.status_code >= 400
+    assert response.status_code >= status.HTTP_400_BAD_REQUEST
 
     response_data = response.json()
 
@@ -55,7 +53,7 @@ def test_set_cell_value_endpoint_with_valid_data_schema(http_client, db_session,
 
     response = http_client.post(f"/sheets/{int_sheet_cell.sheet_id}/set_cell_value", json=set_cell_value_data)
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     db_session.refresh(int_sheet_cell)
 
@@ -72,7 +70,38 @@ def test_set_cell_value_endpoint_with_valid_data_schema(http_client, db_session,
         {CELL_NAME_KEY: "int_sheet_cell", CELL_VALUE_KEY: "invalid_int_value"},
     ]
 )
-def test_set_cell_value_endpoint_with_invalid_sheet_data_schema(http_client, int_sheet_cell, set_cell_value_json):
+def test_set_cell_value_endpoint_with_invalid_sheet_data_schema(
+        set_cell_value_json, http_client, int_sheet_cell, db_session):
+    current_value = int_sheet_cell.value
+
     response = http_client.post(f"/sheets/{int_sheet_cell.sheet_id}/set_cell_value", json=set_cell_value_json)
 
-    assert response.status_code >= 400
+    assert response.status_code >= status.HTTP_400_BAD_REQUEST
+
+    db_session.refresh(int_sheet_cell)
+
+    assert int_sheet_cell.value == current_value
+
+
+def test_get_sheet_by_id_with_existing_sheet(http_client, sheet, int_sheet_cell):
+    response = http_client.get(f"/sheets/{sheet.id}")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert COLUMNS_KEY in response_data
+    assert len(response_data[COLUMNS_KEY]) == 1
+    assert response_data[COLUMNS_KEY][0] == int_sheet_cell.to_json()
+
+
+def test_get_sheet_by_id_with_non_existing_sheet(http_client, db_session):
+    last_sheet_id = db_session.scalar(select(Sheet.id).order_by(desc(Sheet.id))) or 0
+
+    response = http_client.get(f"/sheets/{last_sheet_id + 1}")
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    response_data = response.json()
+
+    assert COLUMNS_KEY not in response_data

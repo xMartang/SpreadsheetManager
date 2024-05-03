@@ -12,4 +12,4 @@ alembic
 
 # Testing
 pytest
-alchemy-mock
+pytest-cov

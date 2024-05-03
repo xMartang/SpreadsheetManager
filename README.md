@@ -9,3 +9,4 @@ hopefully it still meets your requirements :)
 
 1. The cell names are unique and cannot be empty, if they won't be unique the lookup function won't work properly.
 2. Cell type ignores letter case.
+3. Sheets can be empty (with 0 cells).

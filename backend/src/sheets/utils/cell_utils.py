@@ -2,6 +2,8 @@ from distutils.util import strtobool
 
 from sheets.exceptions import InvalidSheetSchemaException, InvalidCellTypeException
 
+COLUMNS_KEY = "columns"
+
 CELL_NAME_KEY = "name"
 CELL_TYPE_KEY = "type"
 CELL_VALUE_KEY = "value"
