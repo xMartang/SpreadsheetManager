@@ -1,6 +1,38 @@
 
-COLUMNS_DATA_KEY = "columns"
-CELL_NAME_KEY = "name"
-CELL_TYPE_KEY = "type"
+from pydantic import BaseModel
 
-REQUIRED_CELL_KEYS = ["name", "type"]
+
+class CreateSheetRequest(BaseModel):
+    columns: list
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "columns": [
+                        {
+                            "name": "A",
+                            "type": "boolean"
+                        },
+                        {
+                            "name": "B",
+                            "type": "int"
+                        },
+                        {
+                            "name": "C",
+                            "type": "double"
+                        },
+                        {
+                            "name": "D",
+                            "type": "string"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+
+class SetCellValueRequest(BaseModel):
+    name: str
+    value: str

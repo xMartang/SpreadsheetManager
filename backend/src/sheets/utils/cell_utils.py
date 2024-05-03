@@ -1,22 +1,39 @@
-from sheets.exceptions import InvalidSheetSchemaException
-from sheets.schemas import COLUMNS_DATA_KEY, REQUIRED_CELL_KEYS, CELL_TYPE_KEY, CELL_NAME_KEY
+from distutils.util import strtobool
 
+from sheets.exceptions import InvalidSheetSchemaException, InvalidCellTypeException
+
+CELL_NAME_KEY = "name"
+CELL_TYPE_KEY = "type"
+CELL_VALUE_KEY = "value"
+
+REQUIRED_CELL_KEYS = ["name", "type"]
 
 CELL_TYPE_VALUE_CONVERTER = {
-    "boolean": bool,
+    "boolean": strtobool,
     "int": int,
     "double": float,
     "string": str
 }
 
 
-def parse_sheet_cells(sheet_data: dict):
+def is_cell_value_valid(cell_value, cell_type):
+    try:
+        if _is_cell_type_invalid(cell_type):
+            raise InvalidCellTypeException(
+                f"Cell type `{cell_type}` is invalid or unsupported...\nSupported cell types: {cell_value}")
+
+        # If the conversion succeeds, then the value is valid
+        CELL_TYPE_VALUE_CONVERTER[cell_type](cell_value)
+
+        return True
+    except ValueError:
+        return False
+
+
+def parse_sheet_cells(sheet_columns: list[dict]):
     parsed_sheet_cells = set()
 
-    if COLUMNS_DATA_KEY not in sheet_data:
-        raise InvalidSheetSchemaException(f"Sheet schema must contain `{COLUMNS_DATA_KEY}` key...")
-
-    for sheet_cell in sheet_data[COLUMNS_DATA_KEY]:
+    for sheet_cell in sheet_columns:
         _ensure_sheet_cell_valid(sheet_cell)
 
         if sheet_cell[CELL_NAME_KEY] in parsed_sheet_cells:
@@ -46,9 +63,9 @@ def _are_cell_keys_invalid(sheet_cell: dict):
     """
     The cell is invalid if it doesn't contain any of the required keys
     """
-    return not isinstance(sheet_cell, dict) or any(required_key not in sheet_cell for required_key in REQUIRED_CELL_KEYS)
+    return not isinstance(sheet_cell, dict) or any(
+        required_key not in sheet_cell for required_key in REQUIRED_CELL_KEYS)
 
 
 def _is_cell_type_invalid(cell_type: str):
     return cell_type.lower() not in CELL_TYPE_VALUE_CONVERTER
-
