@@ -99,7 +99,7 @@ def get_sheet_from_database_as_json(sheet_id: int, db_session: Session) -> dict:
 
         sheet_data[COLUMNS_KEY].append(current_column_json)
 
-    logging.debug(f"Successfully parsed columns in sheet {sheet_id}...")
+    logging.info(f"Successfully parsed columns in sheet {sheet_id} to json format!")
 
     return sheet_data
 
