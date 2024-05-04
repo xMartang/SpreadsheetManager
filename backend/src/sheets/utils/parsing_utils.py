@@ -1,9 +1,10 @@
+from typing import Generator
+
 from sheets.exceptions import InvalidSheetSchemaException
-from sheets.models import Cell
 from sheets.utils.validation_utils import COLUMN_NAME_KEY, ensure_sheet_column_valid
 
 
-def parse_sheet_columns(sheet_columns: list[dict]) -> Cell:
+def parse_sheet_columns(sheet_columns: list[dict]) -> Generator[dict, dict, dict]:
     parsed_sheet_columns = set()
 
     for sheet_column in sheet_columns:

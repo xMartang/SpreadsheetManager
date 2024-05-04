@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -20,13 +21,16 @@ CREATED_ID_KEY = "created_id"
 @router.post("/sheets/", status_code=status.HTTP_201_CREATED)
 async def create_sheet(create_sheet_request: CreateSheetRequest, db_session: Session = Depends(get_db)):
     try:
+        logging.debug("Creating sheet...")
         created_sheet = Sheet()
         db_session.add(created_sheet)
 
+        logging.debug("Adding all columns to the database...")
         await _add_columns_to_db(create_sheet_request.columns, created_sheet, db_session)
 
         db_session.commit()
 
+        logging.info(f"Successfully created sheet with id {created_sheet.id}!")
         return {CREATED_ID_KEY: created_sheet.id}
     except SheetAPIException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -59,6 +63,7 @@ async def set_cell_value(
     column_name, new_cell_value, row_index = \
         set_cell_value_request.column_name, set_cell_value_request.value, set_cell_value_request.row_index
 
+    logging.debug(f"Getting the requested column '{column_name}' in sheet '{sheet_id}'...")
     column = db_session.scalar(
         select(Column).where(Column.sheet_id == sheet_id, Column.name == column_name))
 
@@ -72,12 +77,16 @@ async def set_cell_value(
 
     inserted_cell = upsert_cell_value(db_session, column, row_index, new_cell_value)
 
+    logging.info(f"Successfully inserted/updated cell with id {inserted_cell.id}!")
     return {CREATED_ID_KEY: inserted_cell.id}
 
 
 def _ensure_cell_value_is_valid(cell_value, row_index, column, db_session):
+    logging.debug(f"Ensuring that cell value '{cell_value}' in row {row_index} is valid...")
+
     try:
         if is_cell_value_lookup_function(cell_value):
+            logging.debug(f"Finding the actual value of the lookup function '{cell_value}'...")
             cell_value = get_value_of_lookup_cell(cell_value, row_index, column, db_session)
 
         if not is_cell_value_valid(cell_value, column.type):

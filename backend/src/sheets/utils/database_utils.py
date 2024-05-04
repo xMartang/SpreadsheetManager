@@ -1,3 +1,4 @@
+import logging
 import re
 
 from sqlalchemy.orm import Session
@@ -27,6 +28,7 @@ def get_value_of_lookup_cell(
         raise InvalidCellValueException(f"Value '{lookup_cell_value}' is not a valid lookup function value...")
 
     lookup_info = lookup_info.groupdict()
+    logging.debug(f"Fetching the value of lookup function '{lookup_cell_value}'...")
 
     if _is_circular_lookup_function(lookup_info, original_column, original_row_index):
         raise InvalidCellValueException(f"The lookup function resulted in a circular reference, which is not allowed.")
@@ -34,6 +36,7 @@ def get_value_of_lookup_cell(
     new_lookup_cell_value = _get_lookup_cell_value(lookup_info, original_column.sheet_id, db_session)
 
     if not is_cell_value_lookup_function(new_lookup_cell_value):
+        logging.debug(f"Found the actual value {new_lookup_cell_value} of lookup function '{lookup_cell_value}'...")
         return new_lookup_cell_value
 
     return get_value_of_lookup_cell(new_lookup_cell_value, original_row_index, original_column, db_session)
@@ -69,8 +72,10 @@ def upsert_cell_value(db_session: Session, column: Column, row_index: int, new_c
     inserted_cell = db_session.query(Cell).filter_by(column_id=column.id, row_index=row_index).first()
 
     if not inserted_cell:
+        logging.debug(f"Creating new cell in column {column.id}, row {row_index} with value {new_cell_value}...")
         inserted_cell = Cell(row_index=row_index, value=new_cell_value, column_id=column.id, column=column)
     else:
+        logging.debug(f"Updating existing  cell in column {column.id}, row {row_index} with value {new_cell_value}...")
         inserted_cell.value = new_cell_value
 
     db_session.add(inserted_cell)
@@ -86,11 +91,15 @@ def get_sheet_from_database_as_json(sheet_id: int, db_session: Session) -> dict:
     sheet_data = {COLUMNS_KEY: []}
     columns = db_session.query(Column).filter_by(sheet_id=sheet_id).order_by(Column.id.asc()).all()
 
+    logging.debug(f"Parsing all columns in sheet {sheet_id}...")
+
     for column in columns:
         current_column_json = column.to_json()
         current_column_json[CELLS_KEY] = _get_cells_from_column_as_json(column, db_session)
 
         sheet_data[COLUMNS_KEY].append(current_column_json)
+
+    logging.debug(f"Successfully parsed columns in sheet {sheet_id}...")
 
     return sheet_data
 
@@ -99,16 +108,22 @@ def _get_cells_from_column_as_json(column: Column, db_session: Session) -> list[
     cells_json_data = []
     cells = db_session.query(Cell).filter_by(column_id=column.id).order_by(Cell.row_index.asc()).all()
 
+    logging.debug(f"Parsing all cells in column {column.id}...")
+
     for cell in cells:
         if is_cell_value_lookup_function(cell.value):
             cell.value = get_value_of_lookup_cell(cell.value, cell.row_index, column, db_session)
 
         cells_json_data.append(cell.to_json())
 
+    logging.debug(f"Successfully parsed cells in column {column.id}...")
+
     return cells_json_data
 
 
 def ensure_sheet_exists(sheet_id: int, db_session: Session) -> None:
+    logging.debug(f"Ensuring that sheet with id {sheet_id} exists...")
+
     sheet = db_session.query(Sheet).filter_by(id=sheet_id).first()
 
     if not sheet:

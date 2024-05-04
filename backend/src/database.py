@@ -1,3 +1,4 @@
+import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy_utils import database_exists, create_database
@@ -31,6 +32,8 @@ def ensure_database_exists():
     engine = Database().engine
 
     if not database_exists(engine.url):
+        logging.debug(f"Creating database '{DATABASE_NAME}' with url '{Database.SQLALCHEMY_DATABASE_URL}'")
+
         create_database(engine.url)
 
         # Create all tables in database
