@@ -7,7 +7,16 @@ from design_patterns.singleton import SingletonMeta
 
 
 class Base(DeclarativeBase):
-    pass
+
+    @property
+    def blacklisted_json_columns(self):
+        return ["id"]
+
+    def to_json(self):
+        return {
+            column_name: getattr(self, column_name) for column_name in self.__table__.columns.keys()
+            if column_name not in self.blacklisted_json_columns
+        }
 
 
 class Database(metaclass=SingletonMeta):

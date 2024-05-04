@@ -1,13 +1,12 @@
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import insert
 from sqlalchemy.orm import Session
 
 from config import DATABASE_USER, DATABASE_PASSWORD
 from database import Database, Base, ensure_database_exists, get_db
 from main import app
-from sheets.models import Sheet, Cell
+from sheets.models import Sheet, Column, Cell
 
 DATABASE_TEST_NAME = "test_spreadsheet"
 
@@ -46,9 +45,7 @@ def _clean_test_database():
 def sheet(db_session):
     sheet = Sheet()
 
-    # Insert sheet to the database
-    db_session.add(sheet)
-    db_session.commit()
+    _insert_model_instance_to_database(sheet, db_session)
 
     try:
         yield sheet
@@ -56,13 +53,29 @@ def sheet(db_session):
         db_session.delete(sheet)
 
 
-@pytest.fixture(scope="module")
-def int_sheet_cell(db_session, sheet):
-    cell = Cell(name="int_sheet_cell", type="int", value=0, sheet_id=sheet.id)
-
-    # Insert cell to the database
-    db_session.add(cell)
+def _insert_model_instance_to_database(model_instance: Base, db_session: Session):
+    db_session.add(model_instance)
     db_session.commit()
+    db_session.refresh(model_instance)
+
+
+@pytest.fixture(scope="module")
+def int_column(db_session, sheet):
+    column = Column(name="int_column", type="int", sheet=sheet)
+
+    _insert_model_instance_to_database(column, db_session)
+
+    try:
+        yield column
+    finally:
+        db_session.delete(column)
+
+
+@pytest.fixture(scope="module")
+def int_cell(db_session, int_column):
+    cell = Cell(row_index=1, value=0, column=int_column)
+
+    _insert_model_instance_to_database(cell, db_session)
 
     try:
         yield cell

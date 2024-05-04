@@ -24,15 +24,23 @@ def upgrade() -> None:
     )
 
     op.create_table(
-        'cells',
+        'columns',
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String, nullable=False),
         sa.Column('type', sa.String, nullable=False),
-        sa.Column('value', sa.String, nullable=True),
         sa.Column('sheet_id', sa.Integer, sa.ForeignKey("sheets.id"), nullable=False),
+    )
+
+    op.create_table(
+        'cells',
+        sa.Column('id', sa.Integer, primary_key=True),
+        sa.Column('row_index', sa.Integer, nullable=False),
+        sa.Column('value', sa.String, nullable=False),
+        sa.Column('column_id', sa.Integer, sa.ForeignKey("columns.id"), nullable=False),
     )
 
 
 def downgrade() -> None:
-    op.drop_table('sheets')
     op.drop_table('cells')
+    op.drop_table('columns')
+    op.drop_table('sheets')

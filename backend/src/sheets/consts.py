@@ -1,0 +1,7 @@
+COLUMN_NAME_KEY = "name"
+COLUMN_TYPE_KEY = "type"
+
+COLUMNS_KEY = "columns"
+CELLS_KEY = "cells"
+
+LOOKUP_FUNCTION_NAME_PREFIX = "lookup"

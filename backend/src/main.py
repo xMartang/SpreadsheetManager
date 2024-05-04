@@ -14,6 +14,7 @@ async def lifespan(app: FastAPI):
 
     yield
 
+
 app = FastAPI(title=APP_NAME, lifespan=lifespan)
 app.include_router(sheets_router)
 

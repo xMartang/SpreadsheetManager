@@ -13,3 +13,5 @@ alembic
 # Testing
 pytest
 pytest-cov
+pytest-asyncio
+mock-alchemy
