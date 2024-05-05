@@ -1,9 +1,10 @@
 import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy_utils import database_exists, create_database
 
-from config import DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD
+from config import SQL_ALCHEMY_DATABASE_CONNECTION_URL, DATABASE_NAME
 from design_patterns.singleton import SingletonMeta
 
 
@@ -21,10 +22,9 @@ class Base(DeclarativeBase):
 
 
 class Database(metaclass=SingletonMeta):
-    SQLALCHEMY_DATABASE_URL = f'postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@localhost/{DATABASE_NAME}'
 
-    def __init__(self):
-        self.engine = create_engine(self.SQLALCHEMY_DATABASE_URL)
+    def __init__(self, sql_alchemy_url=SQL_ALCHEMY_DATABASE_CONNECTION_URL):
+        self.engine = create_engine(sql_alchemy_url)
         self.session_local = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
 
 
@@ -32,7 +32,7 @@ def ensure_database_exists():
     engine = Database().engine
 
     if not database_exists(engine.url):
-        logging.debug(f"Creating database '{DATABASE_NAME}' with url '{Database.SQLALCHEMY_DATABASE_URL}'")
+        logging.debug(f"Creating database '{DATABASE_NAME}' with url '{SQL_ALCHEMY_DATABASE_CONNECTION_URL}'")
 
         create_database(engine.url)
 

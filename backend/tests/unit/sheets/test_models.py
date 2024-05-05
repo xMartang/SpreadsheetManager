@@ -1,4 +1,3 @@
-
 from sheets.consts import COLUMN_NAME_KEY, COLUMN_TYPE_KEY
 
 

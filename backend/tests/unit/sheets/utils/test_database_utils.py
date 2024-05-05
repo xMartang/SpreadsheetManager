@@ -1,10 +1,8 @@
-import pdb
-
 import pytest
 
 from sheets.consts import COLUMN_NAME_KEY, COLUMN_TYPE_KEY, COLUMNS_KEY, CELLS_KEY
-from sheets.models import Cell
 from sheets.exceptions import DatabaseObjectNotFoundException, InvalidCellValueException
+from sheets.models import Cell
 from sheets.utils.database_utils import LOOKUP_COLUMN_NAME_KEY, LOOKUP_ROW_INDEX_KEY, upsert_cell_value, \
     get_sheet_from_database_as_json, ensure_sheet_exists, _get_cells_from_column_as_json, _get_lookup_cell_value, \
     _is_circular_lookup_function, get_value_of_lookup_cell
@@ -104,18 +102,18 @@ def test__get_lookup_cell_value_with_non_existing_row_index(db_session_mock, int
 
 def test__is_circular_lookup_function_with_valid_lookup_info(db_session_mock, int_column, int_cell):
     assert not _is_circular_lookup_function(
-            {LOOKUP_COLUMN_NAME_KEY: int_column.name + "A", LOOKUP_ROW_INDEX_KEY: int_cell.row_index},
-            int_column,
-            1
-        )
+        {LOOKUP_COLUMN_NAME_KEY: int_column.name + "A", LOOKUP_ROW_INDEX_KEY: int_cell.row_index},
+        int_column,
+        1
+    )
 
 
 def test__is_circular_lookup_function_with_circular_lookup_info(db_session_mock, int_column, int_cell):
     assert _is_circular_lookup_function(
-            {LOOKUP_COLUMN_NAME_KEY: int_column.name, LOOKUP_ROW_INDEX_KEY: int_cell.row_index},
-            int_column,
-            int_cell.row_index
-        )
+        {LOOKUP_COLUMN_NAME_KEY: int_column.name, LOOKUP_ROW_INDEX_KEY: int_cell.row_index},
+        int_column,
+        int_cell.row_index
+    )
 
 
 def test_get_value_of_lookup_cell_with_valid_lookup_info(db_session_mock, int_column, int_cell):
@@ -167,5 +165,3 @@ def test_get_value_of_lookup_cell_with_invalid_lookup_info(db_session_mock, int_
             int_column,
             db_session_mock
         )
-
-

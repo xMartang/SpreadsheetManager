@@ -1,4 +1,3 @@
-
 import pytest
 from mock_alchemy.mocking import UnifiedAlchemyMagicMock
 

@@ -1,11 +1,9 @@
-
 import pytest
-
 
 from sheets.models import Column
 from sheets.router import _add_columns_to_db
 
-pytest_plugins = ('pytest_asyncio', )
+pytest_plugins = ('pytest_asyncio',)
 
 VALID_COLUMNS = [
     {

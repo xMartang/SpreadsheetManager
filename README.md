@@ -29,5 +29,15 @@ Otherwise, follow the steps bellow:
    * For testing, create a database named `test_spreadsheet`
 4. Open a console in the 'backend' folder and run `alembic upgrade head` to ensure that you use the latest revision.
 
+NOTE: If you decide to use a different user or a different database name, make sure to rename the sqlalchemy database 
+connection url in the `backend/alembic.ini`, under `sqlalchemy.url`
+
 ### Start Server
-To start the server, simply open a console in the 'backed/src' folder and run uvicorn main:app --reload
+To start the server, simply open a console in the 'backed/src' folder and run `uvicorn main:app --reload`.
+
+### Testing
+The tests were written using pytest, I recommend running pytest with the following command in order to also see code
+coverage in the tests:
+
+`pytest --cov=/path/to/spreadsheet/manager/backend/src --cov-report term-missing`
+

@@ -73,7 +73,7 @@ def test_set_cell_value_endpoint_with_valid_data_schema(http_client, db_session,
     'set_cell_value_json', [
         {},
         {"naame": "", SET_CELL_ROW_INDEX_KEY: 1, SET_CELL_VALUE_KEY: "a"},
-        {SET_CELL_COLUMN_NAME_KEY: "", SET_CELL_ROW_INDEX_KEY: 1,  "vaalue": " a"},
+        {SET_CELL_COLUMN_NAME_KEY: "", SET_CELL_ROW_INDEX_KEY: 1, "vaalue": " a"},
         "invalid_json_argument",
         {SET_CELL_COLUMN_NAME_KEY: "non_existing_column_name", SET_CELL_ROW_INDEX_KEY: 1, SET_CELL_VALUE_KEY: ""},
         {SET_CELL_COLUMN_NAME_KEY: "int_cell", SET_CELL_ROW_INDEX_KEY: 1, SET_CELL_VALUE_KEY: "invalid_value"},

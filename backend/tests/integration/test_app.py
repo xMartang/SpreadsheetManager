@@ -1,5 +1,3 @@
-
-
 def test_root_redirect_to_docs(http_client):
     response = http_client.get("/")
 

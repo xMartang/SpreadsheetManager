@@ -1,8 +1,7 @@
-
 import pytest
 
-from sheets.exceptions import InvalidCellTypeException
 from sheets.consts import COLUMN_NAME_KEY, COLUMN_TYPE_KEY
+from sheets.exceptions import InvalidCellTypeException
 from sheets.utils.validation_utils import is_cell_value_valid, is_column_type_invalid, are_column_keys_invalid
 
 

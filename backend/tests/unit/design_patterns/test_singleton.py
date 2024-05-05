@@ -1,4 +1,3 @@
-
 from design_patterns.singleton import SingletonMeta
 
 

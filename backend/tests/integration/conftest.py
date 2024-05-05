@@ -1,16 +1,16 @@
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from config import DATABASE_USER, DATABASE_PASSWORD
 from database import Database, Base, ensure_database_exists, get_db
 from main import app
 from sheets.models import Sheet, Column, Cell
 
-DATABASE_TEST_NAME = "test_spreadsheet"
+TEST_DATABASE_NAME = "test_spreadsheet"
+DATABASE_USER = "spreadsheet_manager"
+DATABASE_PASSWORD = "123"
 
-Database.SQLALCHEMY_DATABASE_URL = f'postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@localhost/{DATABASE_TEST_NAME}'
+Database(f'postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@localhost/{TEST_DATABASE_NAME}')
 
 # Create the test database if it doesn't exist
 ensure_database_exists()
