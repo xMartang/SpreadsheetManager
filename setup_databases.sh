@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Create the database user and give him permissions to create databases
+# Create the database role and give him permissions to create databases
 sudo -i -u postgres bash -c "psql -c \"CREATE USER spreadsheet_manager WITH PASSWORD '123';\""
 sudo -i -u postgres bash -c "psql -c \"ALTER USER spreadsheet_manager WITH CREATEDB;\""
 
