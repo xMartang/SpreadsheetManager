@@ -108,15 +108,11 @@ def _get_cells_from_column_as_json(column: Column, db_session: Session) -> list[
     cells_json_data = []
     cells = db_session.query(Cell).filter_by(column_id=column.id).order_by(Cell.row_index.asc()).all()
 
-    logging.debug(f"Parsing all cells in column {column.id}...")
-
     for cell in cells:
         if is_cell_value_lookup_function(cell.value):
             cell.value = get_value_of_lookup_cell(cell.value, cell.row_index, column, db_session)
 
         cells_json_data.append(cell.to_json())
-
-    logging.debug(f"Successfully parsed cells in column {column.id}...")
 
     return cells_json_data
 

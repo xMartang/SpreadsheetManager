@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.responses import RedirectResponse
 
-from config import APP_NAME
+from config import APP_NAME, DEBUG_MODE
 from database import ensure_database_exists
 from sheets.router import router as sheets_router
 
@@ -15,7 +15,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title=APP_NAME, lifespan=lifespan)
+app = FastAPI(title=APP_NAME, lifespan=lifespan, debug=DEBUG_MODE)
 app.include_router(sheets_router)
 
 
