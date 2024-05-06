@@ -1,5 +1,5 @@
 # SpreadsheetManager
-My implementation for the spreadsheet manager task, using fastapi and postgresql.
+My implementation for the spreadsheet manager task, using fastapi and postgresql
 
 ## Assumptions
 Here are all the assumptions I made and ended up in my implementation.
@@ -12,37 +12,35 @@ hopefully it still meets your requirements :)
 ## Usage 
 Here's a guide on how to setup and use this spreadsheet manager:
 
+### Quickstart
+There are two ways to start the server.
+
+* Dockers:
+1. Build the dockers by running `docker-compose build`
+2. Run the server by running `docker-compose up -d`
+
+* Standalone (for debugging):
+1. Install the python requirements for the project (follow `Install python requirements` bellow).
+2. Start the database docker by running `docker-compose up -d db`
+3. Run the server by running the `run_server.py` script in the 'backend' folder
+
 ### Install python requirements
 If you are using linux, just run the `install_requirements.sh` script found in the top project folder.
-Otherwise, open a console in this folder and run "python3 -m pip install -r backend/requirements.txt".
-
-### Database Setup
-Make sure you have postgresql installed before proceeding.
-
-If you are using linux, just run the `setup_databases.sh` script found in the top project folder.
-Otherwise, follow the steps bellow:
-
-1. Create a postgresql user named spreadsheet_manager with the password '123'.
-2. Add createdb permissions for the user.
-3. Create two databases:
-   * For production, create a database named `spreadsheet`
-   * For testing, create a database named `test_spreadsheet`
-4. Open a console in the 'backend' folder and run `alembic upgrade head` to ensure that you are using the latest revision.
-
-NOTE: If you decide to use a different username/password/database name, make sure to rename them in the sqlalchemy 
-database connection url in the `backend/alembic.ini`, under `sqlalchemy.url`.
-
-### Start Server
-To start the server, simply open a console in the 'backed/src' folder and run `uvicorn main:app --reload`.
+Otherwise, open a console in the 'backend' folder and run `python3 -m pip install -r requirements.txt`.
 
 ### Testing
-The tests were written using pytest, I recommend running pytest with the following command:
+To run the tests:
+* Make sure that you have all python project requirements installed (if you don't, follow `Install python requirements` above)
 
-`pytest --cov=/path/to/spreadsheet/manager/backend/src --cov-report term-missing`
+1. Open a console in the 'backend/tests' directory.
+2. Install the python test requirements by running `python3 -m pip install -r test_requirements.txt`.
+3. Use the following commands to run the tests:
 
-To only run the unit tests, run the command from the 'backend/tests/unit' directory.
+* Command for unit tests: `pytest --cov=../src --cov-report term-missing unit`
 
-To only run the integration tests, run the command from the 'backend/tests/unit' directory.
+* Command for integration tests: `pytest --cov=../src --cov-report term-missing integration`
 
-To run both at the same time, run the command from the 'backend/tests' directory.
+* Command for both: `pytest --cov=../src --cov-report term-missing`
 
+NOTE: make sure that the `test_db` service inside the 'docker-compose.yml' file is running (`docker-compose up -d test_db`),
+otherwise the integration tests won't work.

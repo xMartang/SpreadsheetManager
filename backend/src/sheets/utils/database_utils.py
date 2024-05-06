@@ -8,6 +8,8 @@ from sheets.exceptions import InvalidCellValueException, DatabaseObjectNotFoundE
 from sheets.models import Sheet, Cell, Column
 from sheets.schemas import COLUMNS_KEY
 
+from sheets.utils.column_type_converter import COLUMN_TYPE_VALUE_CONVERTER
+
 LOOKUP_COLUMN_NAME_KEY = "column_name"
 LOOKUP_ROW_INDEX_KEY = "row_index"
 
@@ -42,8 +44,8 @@ def get_value_of_lookup_cell(
     return get_value_of_lookup_cell(new_lookup_cell_value, original_row_index, original_column, db_session)
 
 
-def is_cell_value_lookup_function(cell_value: str):
-    return LOOKUP_FUNCTION_NAME_PREFIX in cell_value
+def is_cell_value_lookup_function(cell_value):
+    return LOOKUP_FUNCTION_NAME_PREFIX in str(cell_value)
 
 
 def _is_circular_lookup_function(lookup_info: dict, original_column: Column, original_row_index: int):
@@ -108,15 +110,13 @@ def _get_cells_from_column_as_json(column: Column, db_session: Session) -> list[
     cells_json_data = []
     cells = db_session.query(Cell).filter_by(column_id=column.id).order_by(Cell.row_index.asc()).all()
 
-    logging.debug(f"Parsing all cells in column {column.id}...")
-
     for cell in cells:
         if is_cell_value_lookup_function(cell.value):
             cell.value = get_value_of_lookup_cell(cell.value, cell.row_index, column, db_session)
 
-        cells_json_data.append(cell.to_json())
+        cell.value = COLUMN_TYPE_VALUE_CONVERTER[column.type](cell.value)
 
-    logging.debug(f"Successfully parsed cells in column {column.id}...")
+        cells_json_data.append(cell.to_json())
 
     return cells_json_data
 

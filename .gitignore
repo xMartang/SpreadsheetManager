@@ -39,7 +39,6 @@ coverage.xml
 cover/
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -47,8 +46,12 @@ ENV/
 env.bak/
 venv.bak/
 
+# Databases
+postgres/
+
 # PyCharm
 .idea/
 
 # Project
 logs/
+server.log

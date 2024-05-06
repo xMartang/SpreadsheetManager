@@ -9,9 +9,3 @@ sqlalchemy
 sqlalchemy-utils
 psycopg2-binary
 alembic
-
-# Testing
-pytest
-pytest-cov
-pytest-asyncio
-mock-alchemy

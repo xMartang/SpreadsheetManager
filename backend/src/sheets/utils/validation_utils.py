@@ -1,14 +1,6 @@
-from distutils.util import strtobool
-
 from sheets.consts import COLUMN_NAME_KEY, COLUMN_TYPE_KEY
 from sheets.exceptions import InvalidSheetSchemaException, InvalidCellTypeException
-
-COLUMN_TYPE_VALUE_CONVERTER = {
-    "boolean": strtobool,
-    "int": int,
-    "double": float,
-    "string": str
-}
+from sheets.utils.column_type_converter import COLUMN_TYPE_VALUE_CONVERTER
 
 REQUIRED_COLUMN_KEYS = [COLUMN_NAME_KEY, COLUMN_TYPE_KEY]
 

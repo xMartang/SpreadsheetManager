@@ -1,0 +1,30 @@
+version: '3'
+services:
+  db:
+    container_name: spreadsheet_manager_db
+    image: postgres:latest
+    restart: always
+    env_file:
+      - backend/.env
+    network_mode: host
+    volumes:
+      - ./postgres/db:/var/lib/postgresql/data
+  test_db:
+    container_name: spreadsheet_manager_test_db
+    image: postgres:latest
+    restart: always
+    env_file:
+      - ./backend/tests/.test.env
+    network_mode: host
+    volumes:
+      - ./postgres/test_db:/var/lib/postgresql/data
+  backend:
+    container_name: spreadsheet_manager_backend
+    command: python3 run_server.py
+    build: ./backend
+    restart: always
+    network_mode: host
+    volumes:
+      - ./backend/docker-logs:/logs
+    depends_on:
+      - db

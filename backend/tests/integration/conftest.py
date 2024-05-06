@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -6,11 +8,12 @@ from database import Database, Base, ensure_database_exists, get_db
 from main import app
 from sheets.models import Sheet, Column, Cell
 
-TEST_DATABASE_NAME = "test_spreadsheet"
-DATABASE_USER = "spreadsheet_manager"
-DATABASE_PASSWORD = "123"
+TEST_DATABASE_NAME = os.environ["POSTGRES_DB"]
+DATABASE_PORT = os.environ["PGPORT"]
+DATABASE_USER = os.environ["POSTGRES_USER"]
+DATABASE_PASSWORD = os.environ["POSTGRES_PASSWORD"]
 
-Database(f'postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@localhost/{TEST_DATABASE_NAME}')
+Database(f'postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@localhost:{DATABASE_PORT}/{TEST_DATABASE_NAME}')
 
 # Create the test database if it doesn't exist
 ensure_database_exists()
