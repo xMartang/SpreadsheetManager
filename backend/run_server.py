@@ -2,6 +2,7 @@ import os
 import sys
 from subprocess import check_call
 from configparser import ConfigParser
+from alembic import command
 
 import uvicorn
 from dotenv import load_dotenv

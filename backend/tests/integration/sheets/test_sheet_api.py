@@ -5,6 +5,7 @@ from sqlalchemy import select, desc
 from sheets.consts import COLUMN_TYPE_KEY, COLUMN_NAME_KEY, COLUMNS_KEY, CELLS_KEY
 from sheets.models import Sheet, Cell
 from sheets.router import CREATED_ID_KEY
+from sheets.utils.column_type_converter import COLUMN_TYPE_VALUE_CONVERTER
 
 SET_CELL_COLUMN_NAME_KEY = "column_name"
 SET_CELL_ROW_INDEX_KEY = "row_index"
@@ -145,6 +146,8 @@ def test_get_sheet_by_id_with_existing_sheet(http_client, int_column, int_cell):
     assert CELLS_KEY in columns[0]
 
     cells = columns[0][CELLS_KEY]
+
+    int_cell.value = COLUMN_TYPE_VALUE_CONVERTER[int_column.type](int_cell.value)
 
     assert len(cells) == len(int_column.cells) and cells[0] == int_cell.to_json()
 

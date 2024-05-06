@@ -1,22 +1,15 @@
 import os
 
 import pytest
+from alembic import command
+from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from database import Database, Base, ensure_database_exists, get_db
+from config import ALEMBIC_DATABASE_CONFIG_FILE_PATH
+from database import Database, Base, get_db
 from main import app
 from sheets.models import Sheet, Column, Cell
-
-TEST_DATABASE_NAME = os.environ["POSTGRES_DB"]
-DATABASE_PORT = os.environ["PGPORT"]
-DATABASE_USER = os.environ["POSTGRES_USER"]
-DATABASE_PASSWORD = os.environ["POSTGRES_PASSWORD"]
-
-Database(f'postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@localhost:{DATABASE_PORT}/{TEST_DATABASE_NAME}')
-
-# Create the test database if it doesn't exist
-ensure_database_exists()
 
 
 @pytest.fixture(scope="session")
@@ -26,12 +19,28 @@ def http_client() -> TestClient:
 
 @pytest.fixture(scope="session")
 def db_session() -> Session:
+    _migrate_test_database_to_latest_revision()
+
     db = next(get_db())
 
     try:
         yield db
     finally:
         _clean_test_database()
+
+
+def _migrate_test_database_to_latest_revision():
+    alembic_config = Config(ALEMBIC_DATABASE_CONFIG_FILE_PATH)
+
+    relative_script_location = alembic_config.get_main_option("script_location")
+
+    alembic_config.set_main_option(
+        "script_location",
+        os.path.join(os.path.dirname(ALEMBIC_DATABASE_CONFIG_FILE_PATH), relative_script_location)
+    )
+    alembic_config.set_main_option("sqlalchemy.url", str(Database().engine.url))
+
+    command.upgrade(alembic_config, "head")
 
 
 def _clean_test_database():

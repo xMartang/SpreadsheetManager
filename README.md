@@ -43,4 +43,4 @@ To run the tests:
 * Command for both: `pytest --cov=../src --cov-report term-missing`
 
 NOTE: make sure that the `test_db` service inside the 'docker-compose.yml' file is running (`docker-compose up -d test_db`),
-otherwise the integration tests won't work.
+otherwise the tests won't work.
