@@ -8,7 +8,7 @@ from database import get_db
 from sheets.consts import COLUMN_NAME_KEY, COLUMN_TYPE_KEY
 from sheets.exceptions import SheetAPIException
 from sheets.models import Sheet, Column
-from sheets.schemas import CreateSheetRequest, SetCellValueRequest
+from sheets.schemas import CreateSheetRequest, GetSheetResponse, SetCellValueRequest, SetCellValueResponse
 from sheets.utils.database_utils import get_sheet_from_database_as_json, upsert_cell_value, \
     is_cell_value_lookup_function, get_value_of_lookup_cell, ensure_sheet_exists
 from sheets.utils.parsing_utils import parse_sheet_columns
@@ -16,23 +16,21 @@ from sheets.utils.validation_utils import is_cell_value_valid
 
 router = APIRouter()
 
-CREATED_ID_KEY = "created_id"
-
 
 @router.post("/sheets/", status_code=status.HTTP_201_CREATED)
-async def create_sheet(create_sheet_request: CreateSheetRequest, db_session: Session = Depends(get_db)):
+async def create_sheet(request: CreateSheetRequest, db_session: Session = Depends(get_db)):
     try:
         logging.debug("Creating sheet...")
         created_sheet = Sheet()
         db_session.add(created_sheet)
 
         logging.debug("Adding all columns to the database...")
-        await _add_columns_to_db(create_sheet_request.columns, created_sheet, db_session)
+        await _add_columns_to_db(request.columns, created_sheet, db_session)
 
         db_session.commit()
 
         logging.info(f"Successfully created sheet with id {created_sheet.id}!")
-        return {CREATED_ID_KEY: created_sheet.id}
+        return {"sheet_id": created_sheet.id}
     except SheetAPIException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -49,20 +47,19 @@ async def _add_columns_to_db(sheet_columns: list[dict], created_sheet: Sheet, db
 
 
 @router.get("/sheets/{sheet_id}/", status_code=status.HTTP_200_OK)
-async def get_sheet_by_id(sheet_id: int, db_session: Session = Depends(get_db)):
+async def get_sheet_by_id(sheet_id: int, db_session: Session = Depends(get_db)) -> GetSheetResponse:
     try:
-        return get_sheet_from_database_as_json(sheet_id, db_session)
+        return GetSheetResponse(sheet_data=get_sheet_from_database_as_json(sheet_id, db_session))
     except SheetAPIException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post("/sheets/{sheet_id}/set_cell_value", status_code=status.HTTP_200_OK)
 async def set_cell_value(
-        sheet_id: int, set_cell_value_request: SetCellValueRequest, db_session: Session = Depends(get_db)):
+        sheet_id: int, request: SetCellValueRequest, db_session: Session = Depends(get_db)) -> SetCellValueResponse:
     ensure_sheet_exists(sheet_id, db_session)
 
-    column_name, new_cell_value, row_index = \
-        set_cell_value_request.column_name, set_cell_value_request.value, set_cell_value_request.row_index
+    column_name, new_cell_value, row_index = request.column_name, request.value, request.row_index
 
     logging.debug(f"Getting the requested column '{column_name}' in sheet '{sheet_id}'...")
     column = db_session.scalar(
@@ -79,7 +76,7 @@ async def set_cell_value(
     inserted_cell = upsert_cell_value(db_session, column, row_index, new_cell_value)
 
     logging.info(f"Successfully inserted/updated cell with id {inserted_cell.id}!")
-    return {CREATED_ID_KEY: inserted_cell.id}
+    return SetCellValueResponse(cell_id=inserted_cell.id)
 
 
 def _ensure_cell_value_is_valid(cell_value, row_index, column, db_session):

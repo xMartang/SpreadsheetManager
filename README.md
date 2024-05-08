@@ -9,10 +9,7 @@ hopefully it still meets your requirements :)
 2. Column type ignores letter case.
 3. Sheets can be empty (with 0 columns).
 
-## Usage 
-Here's a guide on how to setup and use this spreadsheet manager:
-
-### Quickstart
+## Quickstart
 There are two ways to start the server.
 
 * Dockers:

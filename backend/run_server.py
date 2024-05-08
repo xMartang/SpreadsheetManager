@@ -2,12 +2,12 @@ import os
 import sys
 from subprocess import check_call
 from configparser import ConfigParser
-from alembic import command
 
 import uvicorn
 from dotenv import load_dotenv
 
 from src.config import APP_FOLDER_PATH
+from src.database import ensure_database_exists
 
 load_dotenv(".env")
 
@@ -31,6 +31,9 @@ def _set_db_revision_to_latest():
 
 def db_setup():
     _set_db_url()
+
+    ensure_database_exists()
+
     _set_db_revision_to_latest()
 
 

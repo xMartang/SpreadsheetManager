@@ -2,6 +2,27 @@ from pydantic import BaseModel, field_validator
 
 from sheets.consts import COLUMNS_KEY
 
+SHEET_REQUEST_VALUE_EXAMPLE = {
+    COLUMNS_KEY: [
+        {
+            "name": "A",
+            "type": "boolean"
+        },
+        {
+            "name": "B",
+            "type": "int"
+        },
+        {
+            "name": "C",
+            "type": "double"
+        },
+        {
+            "name": "D",
+            "type": "string"
+        }
+    ]
+}
+
 
 class CreateSheetRequest(BaseModel):
     columns: list
@@ -9,25 +30,57 @@ class CreateSheetRequest(BaseModel):
     model_config = {
         "json_schema_extra": {
             "examples": [
+                SHEET_REQUEST_VALUE_EXAMPLE
+            ]
+        }
+    }
+
+
+class GetSheetResponse(BaseModel):
+    sheet_data: dict
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
                 {
-                    COLUMNS_KEY: [
-                        {
-                            "name": "A",
-                            "type": "boolean"
-                        },
-                        {
-                            "name": "B",
-                            "type": "int"
-                        },
-                        {
-                            "name": "C",
-                            "type": "double"
-                        },
-                        {
-                            "name": "D",
-                            "type": "string"
-                        }
-                    ]
+                    "sheet_data": {
+                        "columns": [
+                            {
+                                "name": "A",
+                                "type": "string",
+                                "cells": [
+                                    {
+                                        "row_index": 10,
+                                        "value": "hello"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "B",
+                                "type": "boolean",
+                                "cells": [
+                                    {
+                                        "row_index": 8,
+                                        "value": 0
+                                    },
+                                    {
+                                        "row_index": 11,
+                                        "value": 1
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "C",
+                                "type": "string",
+                                "cells": [
+                                    {
+                                        "row_index": 1,
+                                        "value": "hello"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
                 }
             ]
         }
@@ -55,21 +108,20 @@ class SetCellValueRequest(BaseModel):
                     "row_index": 11,
                     "value": "True"
                 },
+            ]
+        }
+    }
+
+
+class SetCellValueResponse(BaseModel):
+    cell_id: int
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
                 {
-                    "column_name": "B",
-                    "row_index": 1,
-                    "value": 21
+                    "cell_id": 11,
                 },
-                {
-                    "column_name": "C",
-                    "row_index": 2,
-                    "value": 1.337
-                },
-                {
-                    "column_name": "D",
-                    "row_index": 3,
-                    "value": "lookup(A,11)"
-                }
             ]
         }
     }
